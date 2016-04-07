@@ -1,30 +1,28 @@
-# int64-buffer
+# int64-array
 
-64bit Long Integer on Buffer/ArrayBuffer in Pure JavaScript 
+64bit Long Integer on Array-like object in Pure JavaScript 
 
-[![npm version](https://badge.fury.io/js/int64-buffer.svg)](http://badge.fury.io/js/int64-buffer) [![Build Status](https://travis-ci.org/kawanet/int64-buffer.svg?branch=master)](https://travis-ci.org/kawanet/int64-buffer)
+[![npm version](https://badge.fury.io/js/int64-array.svg)](http://badge.fury.io/js/int64-array) [![Build Status](https://travis-ci.org/kawanet/int64-array.svg?branch=master)](https://travis-ci.org/kawanet/int64-array)
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/int64-buffer.svg)](https://saucelabs.com/u/int64-buffer)
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/int64-array.svg)](https://saucelabs.com/u/int64-array)
 
 JavaScript's number based on IEEE-754 could only handle [53 bits](https://en.wikipedia.org/wiki/Double-precision_floating-point_format) precision. This module provides a couple of classes: Int64BE and Uint64BE which could hold 64 bits long integer and loose no bit.
 
 ### Features
 
 - Int64 for signed 64bit long integer and Uint64 for unsigned.
-- Big endian representation in 8 bytes internal buffer.
-- Buffer object is used per default on Node.js.
-- Int8Array or plain Array is used per default on Web browsers.
+- Big endian representation stored in 8 octets Array-like object.
 - No mathematical methods such as add(), sub(), mul(), div() etc.
 - Optimized only for 64 bits. If you need Int128, use [bignum](https://www.npmjs.com/package/bignum) etc.
 - Small. Less than 3KB minified, 1KB gzipped.
-- [Tested](https://travis-ci.org/kawanet/int64-buffer) on node.js-v0.10, v0.12, io.js-v3.3 and [Web browsers](https://saucelabs.com/u/int64-buffer).
+- [Tested](https://travis-ci.org/kawanet/int64-array) on node.js-v0.10, v0.12, io.js-v3.3 and [Web browsers](https://saucelabs.com/u/int64-array).
 
 ### Usage
 
 Int64BE is the class to host a 64bit long integer.
 
 ```js
-var Int64BE = require("int64-buffer").Int64BE;
+var Int64BE = require("int64-array").Int64BE;
 
 var big = new Int64BE(-1);
 
@@ -34,7 +32,7 @@ console.log(big - 0); // -1
 Uint64BE is the class to host a positive unsigned 64bit long integer.
 
 ```js
-var Uint64BE = require("int64-buffer").Uint64BE;
+var Uint64BE = require("int64-array").Uint64BE;
 
 var big = new Uint64BE(Math.pow(2, 63)); // a big number with 64 bits
 
@@ -66,71 +64,45 @@ var big = new Uint64BE("123456789abcdef0", 16);
 console.log(big.toString(16)); // "123456789abcdef0"
 ```
 
-- new Uint64BE(buffer)
-
-```js
-var buffer = new Buffer([1,2,3,4,5,6,7,8]);
-var big = new Uint64BE(buffer);
-console.log(big.toString(16)); // "102030405060708"
-```
-
-- new Uint64BE(uint8array)
-
-```js
-var uint8array = new Uint8Array([1,2,3,4,5,6,7,8]);
-var big = new Uint64BE(uint8array);
-console.log(big.toString(16)); // "102030405060708"
-```
-
-- new Uint64BE(arraybuffer)
-
-```js
-var arraybuffer = (new Uint8Array([1,2,3,4,5,6,7,8])).buffer;
-var big = new Uint64BE(arraybuffer);
-console.log(big.toString(16)); // "102030405060708"
-```
-
 - new Uint64BE(array)
 
 ```js
-var array = [1,2,3,4,5,6,7,8];
-var big = new Uint64BE(array);
+var big = new Uint64BE([1,2,3,4,5,6,7,8]);
 console.log(big.toString(16)); // "102030405060708"
 ```
 
-- new Uint64BE(buffer, offset)
+- new Uint64BE(array, offset)
 
 ```js
-var buffer = new Buffer([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
-var big = new Uint64BE(buffer, 8);
+var big = new Uint64BE([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], 8);
 console.log(big.toString(16)); // "90a0b0c0d0e0f10"
 ```
 
-- new Uint64BE(buffer, offset, number)
+- new Uint64BE(array, offset, number)
 
 ```js
-var buffer = new Buffer(16);
-var big = new Uint64BE(buffer, 8, 0x1234567890);
+var array = new Array(16);
+var big = new Uint64BE(array, 8, 0x1234567890);
 console.log(big.toString(16)); // "1234567890"
-console.log(buffer[15].toString(16)); // "90"
+console.log(array[15].toString(16)); // "90"
 ```
 
-- new Uint64BE(buffer, offset, high, low)
+- new Uint64BE(array, offset, high, low)
 
 ```js
-var buffer = new Buffer(16);
-var big = new Uint64BE(buffer, 8, 0x12345678, 0x9abcdef0);
+var array = new Array(16);
+var big = new Uint64BE(array, 8, 0x12345678, 0x9abcdef0);
 console.log(big.toString(16)); // "123456789abcdef0"
-console.log(buffer[15].toString(16)); // "f0"
+console.log(array[15].toString(16)); // "f0"
 ```
 
-- new Uint64BE(buffer, offset, string, radix)
+- new Uint64BE(array, offset, string, radix)
 
 ```js
-var buffer = new Buffer(16);
-var big = new Uint64BE(buffer, 8, "123456789abcdef0", 16);
+var array = new Array(16);
+var big = new Uint64BE(array, 8, "123456789abcdef0", 16);
 console.log(big.toString(16)); // "123456789abcdef0"
-console.log(buffer[15].toString(16)); // "f0"
+console.log(array[15].toString(16)); // "f0"
 ```
 
 ### Output Methods
@@ -164,20 +136,6 @@ console.log(big.toString()); // "78187493520"
 console.log(big.toString(16)); // "1234567890"
 ```
 
-- toBuffer()
-
-```js
-var big = Uint64BE([1,2,3,4,5,6,7,8]);
-console.log(big.toBuffer()); // <Buffer 01 02 03 04 05 06 07 08>
-```
-
-- toArrayBuffer()
-
-```js
-var big = Uint64BE(0);
-console.log(big.toArrayBuffer().byteLength); // 8
-```
-
 - toArray()
 
 ```js
@@ -187,11 +145,11 @@ console.log(big.toArray()); // [ 1, 2, 3, 4, 5, 6, 7, 8 ]
 
 ### Browsers Build
 
-[int64-buffer.min.js](https://rawgithub.com/kawanet/int64-buffer/master/dist/int64-buffer.min.js) is [tested](https://saucelabs.com/u/int64-buffer) on modern Web browsers as well as legends of IE8.
+[int64-array.min.js](https://rawgithub.com/kawanet/int64-array/master/dist/int64-array.min.js) is [tested](https://saucelabs.com/u/int64-array) on modern Web browsers as well as legends of IE8.
 
 ```html
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<script src="https://rawgithub.com/kawanet/int64-buffer/master/dist/int64-buffer.min.js"></script>
+<script src="https://rawgithub.com/kawanet/int64-array/master/dist/int64-array.min.js"></script>
 <script>
 
   var i = Int64BE("1234567890123456789");
@@ -206,12 +164,12 @@ console.log(big.toArray()); // [ 1, 2, 3, 4, 5, 6, 7, 8 ]
 ### Installation
 
 ```sh
-npm install int64-buffer --save
+npm install int64-array --save
 ```
 
 ### GitHub
 
-- [https://github.com/kawanet/int64-buffer](https://github.com/kawanet/int64-buffer)
+- [https://github.com/kawanet/int64-array](https://github.com/kawanet/int64-array)
 
 ### The MIT License (MIT)
 

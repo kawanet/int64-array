@@ -1,5 +1,5 @@
-sauce_username: int64-buffer
-sauce_key: "0588456e-cfb6-4001-8bdf-9a3f043b4528"
+sauce_username: int64-array
+sauce_key: "9ff06286-ce42-4ca4-bd45-9eb021f49df5"
 name: int64-buffer
 ui: mocha-bdd
 html: "test/zuul/ie.html"

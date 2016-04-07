@@ -1,4 +1,4 @@
-// int64-buffer.js
+// int64-array.js
 
 /*jshint -W018 */ // Confusing use of '!'.
 /*jshint -W030 */ // Expected an assignment or function call and instead saw an expression.
@@ -22,31 +22,22 @@ var Uint64BE, Int64BE;
   // constants
 
   var UNDEFIND = "undefined";
-  var BUFFER = (UNDEFIND !== typeof Buffer) && Buffer;
-  var UINT8ARRAY = (UNDEFIND !== typeof Uint8Array) && Uint8Array;
-  var ARRAYBUFFER = (UNDEFIND !== typeof ArrayBuffer) && ArrayBuffer;
-  var STORAGE = BUFFER || UINT8ARRAY || Array;
   var ZERO = [0, 0, 0, 0, 0, 0, 0, 0];
   var isArray = Array.isArray || _isArray;
   var _toString = Object.prototype.toString;
-  var isBuffer = BUFFER && BUFFER.isBuffer;
   var BIT32 = 4294967296;
   var BIT24 = 16777216;
 
   // initializer
 
   function init(that, buffer, offset, value, raddix) {
-    if (UINT8ARRAY && ARRAYBUFFER) {
-      if (buffer instanceof ARRAYBUFFER) buffer = new UINT8ARRAY(buffer);
-      if (value instanceof ARRAYBUFFER) value = new UINT8ARRAY(value);
-    }
     if (isStorage(buffer, offset)) {
       that.buffer = buffer;
       that.offset = offset = offset | 0;
       if (UNDEFIND === typeof value) return;
       setValue(buffer, offset, value, raddix);
     } else {
-      setValue((that.buffer = new STORAGE(8)), 0, buffer, offset);
+      setValue((that.buffer = new Array(8)), 0, buffer, offset);
     }
   }
 
@@ -100,29 +91,6 @@ var Uint64BE, Int64BE;
     if (raw !== false && offset === 0 && buffer.length === 8 && isArray(buffer)) return buffer;
     return newArray(buffer, offset);
   };
-
-  if (BUFFER) {
-    UPROTO.toBuffer = IPROTO.toBuffer = function(raw) {
-      var buffer = this.buffer;
-      var offset = this.offset;
-      if (raw !== false && offset === 0 && buffer.length === 8 && isBuffer(buffer)) return buffer;
-      var dest = new BUFFER(8);
-      fromArray(dest, 0, buffer, offset);
-      return dest;
-    };
-  }
-
-  if (UINT8ARRAY) {
-    UPROTO.toArrayBuffer = IPROTO.toArrayBuffer = function(raw) {
-      var buffer = this.buffer;
-      var offset = this.offset;
-      var arrbuf = buffer.buffer;
-      if (raw !== false && offset === 0 && (arrbuf instanceof ARRAYBUFFER) && arrbuf.byteLength === 8) return arrbuf;
-      var dest = new UINT8ARRAY(8);
-      fromArray(dest, 0, buffer, offset);
-      return dest.buffer;
-    };
-  }
 
   IPROTO.toString = function(radix) {
     var buffer = this.buffer;

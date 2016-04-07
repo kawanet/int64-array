@@ -3,14 +3,11 @@
 assert.equal = equal;
 assert.ok = assert;
 
-var exported = ("undefined" !== typeof require) ? require("../int64-buffer") : window;
+var exported = ("undefined" !== typeof require) ? require("../int64-array") : window;
 var Uint64BE = exported.Uint64BE;
 var Int64BE = exported.Int64BE;
 var reduce = Array.prototype.reduce;
 var forEach = Array.prototype.forEach;
-var BUFFER = ("undefined" !== typeof Buffer) && Buffer;
-var ARRAYBUFFER = ("undefined" !== typeof ArrayBuffer) && ArrayBuffer;
-var UINT8ARRAY = ("undefined" !== typeof Uint8Array) && Uint8Array;
 
 var ZERO = [0, 0, 0, 0, 0, 0, 0, 0];
 var POS1 = [0, 0, 0, 0, 0, 0, 0, 1];
@@ -23,10 +20,7 @@ var NEG8 = [0x80, 0, 0, 0, 0, 0, 0, 0]; // INT64_MIN
 var SAMPLES = [ZERO, POS1, NEG1, POSB, NEGB, POS7, NEG7, NEG8];
 var FLOAT_MAX = Math.pow(2, 53);
 var CLASS = {Int64BE: Int64BE, Uint64BE: Uint64BE};
-var STORAGES = {buffer: BUFFER, uint8array: UINT8ARRAY, arraybuffer: ARRAYBUFFER, array: Array};
-
-var itBuffer = BUFFER ? it : it.skip;
-var itArrayBuffer = ARRAYBUFFER ? it : it.skip;
+var STORAGES = {array: Array};
 
 describe("Uint64BE", function() {
   it("Uint64BE().toNumber()", function() {
@@ -76,19 +70,6 @@ describe("Uint64BE", function() {
     var val = Uint64BE(1).toArray();
     assert.ok(val instanceof Array);
     assert.equal(toHex(val), toHex(POS1));
-  });
-
-  itBuffer("Uint64BE().toBuffer()", function() {
-    var val = Uint64BE(1).toBuffer();
-    assert.ok(BUFFER.isBuffer(val));
-    assert.equal(toHex(val), toHex(POS1));
-  });
-
-  itArrayBuffer("Uint64BE().toArrayBuffer()", function() {
-    var val = Uint64BE(1).toArrayBuffer();
-    assert.ok(val instanceof ArrayBuffer);
-    assert.equal(val.byteLength, 8);
-    assert.equal(toHex(new Uint8Array(val)), toHex(POS1));
   });
 });
 
@@ -140,19 +121,6 @@ describe("Int64BE", function() {
     var val = Int64BE(-1).toArray();
     assert.ok(val instanceof Array);
     assert.equal(toHex(val), toHex(NEG1));
-  });
-
-  itBuffer("Int64BE().toBuffer()", function() {
-    var val = Int64BE(-1).toBuffer();
-    assert.ok(BUFFER.isBuffer(val));
-    assert.equal(toHex(val), toHex(NEG1));
-  });
-
-  itArrayBuffer("Int64BE().toArrayBuffer()", function() {
-    var val = Int64BE(-1).toArrayBuffer();
-    assert.ok(val instanceof ArrayBuffer);
-    assert.equal(val.byteLength, 8);
-    assert.equal(toHex(new Uint8Array(val)), toHex(NEG1));
   });
 });
 
@@ -326,7 +294,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
       itSkip(int64Name + "(" + storageName + ",offset)", function() {
         var buffer = new StorageClass(24);
         var raw = buffer;
-        if (isArrayBuffer(buffer)) buffer = (raw = new Uint8Array(buffer)).buffer;
         for (var i = 0; i < 24; i++) {
           raw[i] = i;
         }
@@ -336,16 +303,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
         var out = val.toArray();
         assert.equal(toHex(out), "08090a0b0c0d0e0f");
         assert.ok(out instanceof Array);
-        if (BUFFER) {
-          out = val.toBuffer();
-          assert.equal(toHex(out), "08090a0b0c0d0e0f");
-          assert.ok(BUFFER.isBuffer(out));
-        }
-        if (UINT8ARRAY) {
-          out = val.toArrayBuffer();
-          assert.equal(toHex(new Uint8Array(out)), "08090a0b0c0d0e0f");
-          assert.ok(out instanceof ArrayBuffer);
-        }
       });
 
       itSkip(int64Name + "(" + storageName + ",offset,value)", function() {
@@ -354,7 +311,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
         assert.equal(val.toNumber(), 1234567890);
         assert.equal(val.toString(), "1234567890");
         assert.equal(val.toJSON(), "1234567890");
-        if (isArrayBuffer(buffer)) buffer = new Uint8Array(buffer);
         assert.equal(buffer[8], 0);
         assert.equal(buffer[15], 1234567890 & 255);
       });
@@ -363,7 +319,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
         var buffer = new StorageClass(24);
         var val = new Int64Class(buffer, 8, 0x12345678, 0x90abcdef);
         assert.equal(val.toString(16), "1234567890abcdef");
-        if (isArrayBuffer(buffer)) buffer = new Uint8Array(buffer);
         assert.equal(buffer[8], 0x12);
         assert.equal(buffer[15], 0xef);
       });
@@ -374,7 +329,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
         assert.equal(val.toNumber(), 0x1234567890);
         assert.equal(val.toString(16), "1234567890");
         assert.equal(val.toJSON(), (0x1234567890).toString());
-        if (isArrayBuffer(buffer)) buffer = new Uint8Array(buffer);
         assert.equal(buffer[8], 0);
         assert.equal(buffer[15], 0x1234567890 & 255);
       });
@@ -415,10 +369,6 @@ describe("Int64BE(string)", function() {
     });
   });
 });
-
-function isArrayBuffer(buffer) {
-  return (ARRAYBUFFER && buffer instanceof ArrayBuffer);
-}
 
 function toHex(array) {
   return Array.prototype.map.call(array, function(val) {
