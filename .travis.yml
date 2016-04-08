@@ -8,3 +8,10 @@ matrix:
     - node_js: "0.12"
     - node_js: "4"
     - node_js: "5"
+    - node_js: "0.12"
+      env: BROWSER=1
+
+addons:
+  sauce_connect:
+    username: "int64-array"
+    access_key: "9ff06286-ce42-4ca4-bd45-9eb021f49df5"

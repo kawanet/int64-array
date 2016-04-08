@@ -1,6 +1,6 @@
 sauce_username: int64-array
 sauce_key: "9ff06286-ce42-4ca4-bd45-9eb021f49df5"
-name: int64-buffer
+name: int64-array
 ui: mocha-bdd
 html: "test/zuul/ie.html"
 browsers:
@@ -13,6 +13,6 @@ browsers:
   - name: safari
     version: "6..latest"
   - name: iphone
-    version: ["7.1", "8.4..latest"]
+    version: ["7.1", "8.4", "9.2..latest"]
   - name: android
-    version: ["4.1", "4.4..latest"]
+    version: ["4.1", "4.4", "5.1..latest"]
