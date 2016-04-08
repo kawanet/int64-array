@@ -336,7 +336,12 @@ Object.keys(CLASS).forEach(function(int64Name) {
   });
 });
 
-describe("Uint64BE(string)", function() {
+describe("Uint64BE", function() {
+  it("Uint64BE.isUint64BE(Uint64BE())", function() {
+    assert.ok(Uint64BE.isUint64BE(Uint64BE()));
+    assert.ok(!Uint64BE.isUint64BE(Int64BE()));
+  });
+
   // rount-trip by string
   it("Uint64BE(''+Uint64BE())", function() {
     SAMPLES.forEach(function(array) {
@@ -347,7 +352,12 @@ describe("Uint64BE(string)", function() {
   });
 });
 
-describe("Int64BE(string)", function() {
+describe("Int64BE", function() {
+  it("Int64BE.isInt64BE(Int64BE())", function() {
+    assert.ok(Int64BE.isInt64BE(Int64BE()));
+    assert.ok(!Int64BE.isInt64BE(Uint64BE()));
+  });
+
   // rount-trip by string
   it("Int64BE(''+Int64BE())", function() {
     SAMPLES.forEach(function(array) {

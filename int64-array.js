@@ -67,7 +67,15 @@ var Uint64BE, Int64BE;
 
   UPROTO.offset = IPROTO.offset = 0;
 
-  UPROTO.fragment = IPROTO.fragment = false;
+  UPROTO._isUint64BE = IPROTO._isInt64BE = true;
+
+  U.isUint64BE = function(b) {
+    return !!(b && b._isUint64BE);
+  };
+
+  I.isInt64BE = function(b) {
+    return !!(b && b._isInt64BE);
+  };
 
   UPROTO.toNumber = function() {
     var buffer = this.buffer;
