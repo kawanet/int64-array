@@ -1,7 +1,7 @@
 {
   "name": "int64-array",
   "description": "64bit Long Integer on Array-like object in Pure JavaScript",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "@kawanet",
   "bugs": {
     "url": "https://github.com/kawanet/int64-array/issues"
@@ -20,7 +20,8 @@
       "window": true
     },
     "node": true,
-    "undef": true
+    "undef": true,
+    "unused": true
   },
   "keywords": [
     "64bit",
