@@ -89,6 +89,16 @@ console.log(big.toString(16)); // "123456789abcdef0"
 console.log(array[15].toString(16)); // "f0"
 ```
 
+- new Uint64BE(array, offset, array, offset)
+
+```js
+var array = new Array(16)
+var source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];;
+var big = new Uint64BE(array, 4, source, 8);
+console.log(big.toString(16)); // "90a0b0c0d0e0f10"
+console.log(array[4]); // 9
+```
+
 ### Output Methods
 
 - Number context

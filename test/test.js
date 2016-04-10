@@ -1,4 +1,4 @@
-#!/usr/bin/env mocha -R spec
+// #!/usr/bin/env mocha -R spec
 
 assert.equal = equal;
 assert.ok = assert;
@@ -76,6 +76,15 @@ describe("Uint64BE", function() {
     assert.equal(buffer[8], 0);
     assert.equal(buffer[15], 0x1234567890 & 255);
   });
+
+  it("Uint64BE(array,offset,array,offset)", function() {
+    var buffer = new Array(24);
+    var src = [].concat(POSB, NEGB);
+    var val = Uint64BE(buffer, 12, src, 4);
+    assert.equal(val.toString(16), "9abcdef0fedcba98");
+    assert.equal(buffer[12], POSB[4]);
+  });
+
   it("Uint64BE().toNumber()", function() {
     var val = Uint64BE(1).toNumber();
     assert.ok("number" === typeof val);
@@ -183,6 +192,14 @@ describe("Int64BE", function() {
     assert.equal(val.toJSON(), (0x1234567890).toString());
     assert.equal(buffer[8], 0);
     assert.equal(buffer[15], 0x1234567890 & 255);
+  });
+
+  it("Int64BE(array,offset,array,offset)", function() {
+    var buffer = new Array(24);
+    var src = [].concat(NEGB, POSB);
+    var val = Int64BE(buffer, 8, src, 4);
+    assert.equal(val.toString(16), "7654321012345678");
+    assert.equal(buffer[8], NEGB[4]);
   });
 
   it("Int64BE().toNumber()", function() {
@@ -523,6 +540,14 @@ Object.keys(CLASS).forEach(function(int64Name) {
       assert.equal(c.toString(16), "123456789abcdef0");
       assert.ok(c.buffer instanceof UINT8ARRAY);
       assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(uint8array,offset,uint8array,offset)", function() {
+      var buffer = new UINT8ARRAY(16);
+      var src = new UINT8ARRAY(POSB);
+      var val = Int64BE(buffer, 4, src, 0);
+      assert.equal(val.toString(16), toHex(POSB));
+      assert.equal(buffer[4], POSB[0]);
     });
   });
 });
