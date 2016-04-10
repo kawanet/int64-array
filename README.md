@@ -50,6 +50,13 @@ var big = new Uint64BE(1234567890);
 console.log(big - 0); // 1234567890
 ```
 
+- new Uint64BE(high, low)
+
+```js
+var big = new Uint64BE(0x12345678, 0x9abcdef0);
+console.log(big.toString(16)); // "123456789abcdef0"
+```
+
 - new Uint64BE(string, radix)
 
 ```js
@@ -78,6 +85,15 @@ var array = new Array(16);
 var big = new Uint64BE(array, 8, 0x1234567890);
 console.log(big.toString(16)); // "1234567890"
 console.log(array[15].toString(16)); // "90"
+```
+
+- new Uint64BE(buffer, offset, high, low)
+
+```js
+var buffer = new Buffer(16);
+var big = new Uint64BE(buffer, 8, 0x12345678, 0x9abcdef0);
+console.log(big.toString(16)); // "123456789abcdef0"
+console.log(buffer[15].toString(16)); // "f0"
 ```
 
 - new Uint64BE(array, offset, string, radix)

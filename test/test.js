@@ -67,6 +67,14 @@ describe("Uint64BE", function() {
     assert.equal(buffer[15], 1234567890 & 255);
   });
 
+  it("Uint64BE(array,offset,high,low)", function() {
+    var buffer = new Array(24);
+    var val = new Uint64BE(buffer, 8, 0x90abcdef, 0x12345678);
+    assert.equal(val.toString(16), "90abcdef12345678");
+    assert.equal(buffer[8], 0x90);
+    assert.equal(buffer[15], 0x78);
+  });
+
   it("Uint64BE(array,offset,string,raddix)", function() {
     var buffer = new Array(24);
     var val = new Uint64BE(buffer, 8, "1234567890", 16);
@@ -182,6 +190,14 @@ describe("Int64BE", function() {
     assert.equal(val.toJSON(), "1234567890");
     assert.equal(buffer[8], 0);
     assert.equal(buffer[15], 1234567890 & 255);
+  });
+
+  it("Int64BE(array,offset,high,low)", function() {
+    var buffer = new Array(24);
+    var val = new Int64BE(buffer, 8, 0x12345678, 0x90abcdef);
+    assert.equal(val.toString(16), "1234567890abcdef");
+    assert.equal(buffer[8], 0x12);
+    assert.equal(buffer[15], 0xef);
   });
 
   it("Int64BE(array,offset,string,raddix)", function() {
@@ -533,6 +549,14 @@ Object.keys(CLASS).forEach(function(int64Name) {
       assert.equal(c - 0, 1234567890);
       assert.ok(c.buffer instanceof UINT8ARRAY);
       assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(uint8array,offset,high,low)", function() {
+      var buffer = new UINT8ARRAY(16);
+      var c = XInt64BE(buffer, 8, 0x12345678, 0x90abcdef);
+      assert.equal(c.toString(16), "1234567890abcdef");
+      assert.equal(buffer[8], 0x12);
+      assert.equal(buffer[15], 0xef);
     });
 
     it("XInt64BE(uint8array,offset,string,raddix)", function() {
