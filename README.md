@@ -10,12 +10,12 @@ JavaScript's number based on IEEE-754 could only handle [53 bits](https://en.wik
 
 ### Features
 
-- Int64 for signed 64bit long integer and Uint64 for unsigned.
+- Int64BE for signed 64bit long integer and Uint64BE for unsigned.
 - Big endian representation stored in 8 octets Array-like object.
 - No mathematical methods such as add(), sub(), mul(), div() etc.
 - Optimized only for 64 bits. If you need Int128, use [bignum](https://www.npmjs.com/package/bignum) etc.
 - Small. Less than 3KB minified, 1KB gzipped.
-- [Tested](https://travis-ci.org/kawanet/int64-array) on node.js-v0.10, v0.12, io.js-v3.3 and [Web browsers](https://saucelabs.com/u/int64-array).
+- [Tested](https://travis-ci.org/kawanet/int64-array) on node.js-v0.10, v0.12, v4, v5 and [Web browsers](https://saucelabs.com/u/int64-array).
 
 ### Usage
 
@@ -157,7 +157,7 @@ npm install int64-array --save
 
 ### The MIT License (MIT)
 
-Copyright (c) 2015 Yusuke Kawasaki
+Copyright (c) 2015-2016 Yusuke Kawasaki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
