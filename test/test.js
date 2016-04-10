@@ -19,10 +19,47 @@ var NEG7 = [0x80, 0, 0, 0, 0, 0, 0, 1]; // -INT64_MAX
 var NEG8 = [0x80, 0, 0, 0, 0, 0, 0, 0]; // INT64_MIN
 var SAMPLES = [ZERO, POS1, NEG1, POSB, NEGB, POS7, NEG7, NEG8];
 var FLOAT_MAX = Math.pow(2, 53);
-var CLASS = {Int64BE: Int64BE, Uint64BE: Uint64BE};
-var STORAGES = {array: Array};
 
 describe("Uint64BE", function() {
+  it("Uint64BE(string,raddix)", function() {
+    assert.equal(Uint64BE("1234567890123456").toString(), "1234567890123456");
+    assert.equal(Uint64BE("1234567890123456", 10).toString(10), "1234567890123456");
+    assert.equal(Uint64BE("1234567890abcdef", 16).toString(16), "1234567890abcdef");
+  });
+
+  it("Uint64BE(array,offset)", function() {
+    var buffer = new Array(24);
+    var raw = buffer;
+    for (var i = 0; i < 24; i++) {
+      raw[i] = i;
+    }
+    var val = new Uint64BE(buffer, 8);
+    assert.equal(Math.round(val.toNumber() / 0x1000000), 0x08090A0B0C); // check only higher 48bits
+    assert.equal(val.toString(16), "8090a0b0c0d0e0f");
+    var out = val.toArray();
+    assert.equal(toHex(out), "08090a0b0c0d0e0f");
+    assert.ok(out instanceof Array);
+  });
+
+  it("Uint64BE(array,offset,value)", function() {
+    var buffer = new Array(24);
+    var val = new Uint64BE(buffer, 8, 1234567890);
+    assert.equal(val.toNumber(), 1234567890);
+    assert.equal(val.toString(), "1234567890");
+    assert.equal(val.toJSON(), "1234567890");
+    assert.equal(buffer[8], 0);
+    assert.equal(buffer[15], 1234567890 & 255);
+  });
+
+  it("Uint64BE(array,offset,string,raddix)", function() {
+    var buffer = new Array(24);
+    var val = new Uint64BE(buffer, 8, "1234567890", 16);
+    assert.equal(val.toNumber(), 0x1234567890);
+    assert.equal(val.toString(16), "1234567890");
+    assert.equal(val.toJSON(), (0x1234567890).toString());
+    assert.equal(buffer[8], 0);
+    assert.equal(buffer[15], 0x1234567890 & 255);
+  });
   it("Uint64BE().toNumber()", function() {
     var val = Uint64BE(1).toNumber();
     assert.ok("number" === typeof val);
@@ -71,9 +108,54 @@ describe("Uint64BE", function() {
     assert.ok(val instanceof Array);
     assert.equal(toHex(val), toHex(POS1));
   });
+
+  it("Uint64BE.isUint64BE(Uint64BE())", function() {
+    assert.ok(Uint64BE.isUint64BE(Uint64BE()));
+    assert.ok(!Uint64BE.isUint64BE(Int64BE()));
+  });
 });
 
 describe("Int64BE", function() {
+  it("Int64BE(string,raddix)", function() {
+    assert.equal(Int64BE("1234567890123456").toString(), "1234567890123456");
+    assert.equal(Int64BE("1234567890123456", 10).toString(10), "1234567890123456");
+    assert.equal(Int64BE("1234567890abcdef", 16).toString(16), "1234567890abcdef");
+  });
+
+  it("Int64BE(array,offset)", function() {
+    var buffer = new Array(24);
+    var raw = buffer;
+    for (var i = 0; i < 24; i++) {
+      raw[i] = i;
+    }
+    var val = new Int64BE(buffer, 8);
+    assert.equal(Math.round(val.toNumber() / 0x1000000), 0x08090A0B0C); // check only higher 48bits
+    assert.equal(val.toString(16), "8090a0b0c0d0e0f");
+    var out = val.toArray();
+    assert.equal(toHex(out), "08090a0b0c0d0e0f");
+    assert.ok(out instanceof Array);
+  });
+
+  it("Int64BE(array,offset,value)", function() {
+    var buffer = new Array(24);
+    var val = new Int64BE(buffer, 8, 1234567890);
+    assert.equal(val.toNumber(), 1234567890);
+    assert.equal(val.toString(), "1234567890");
+    assert.equal(val.toJSON(), "1234567890");
+    assert.equal(buffer[8], 0);
+    assert.equal(buffer[15], 1234567890 & 255);
+  });
+
+  it("Int64BE(array,offset,string,raddix)", function() {
+    var buffer = new Array(24);
+    var val = new Int64BE(buffer, 8, "1234567890", 16);
+    assert.equal(val.toNumber(), 0x1234567890);
+    assert.equal(val.toString(16), "1234567890");
+    assert.equal(val.toJSON(), (0x1234567890).toString());
+    assert.equal(buffer[8], 0);
+    assert.equal(buffer[15], 0x1234567890 & 255);
+  });
+
   it("Int64BE().toNumber()", function() {
     var val = Int64BE(-1).toNumber();
     assert.ok("number" === typeof val);
@@ -122,14 +204,23 @@ describe("Int64BE", function() {
     assert.ok(val instanceof Array);
     assert.equal(toHex(val), toHex(NEG1));
   });
+
+  it("Int64BE.isInt64BE(Int64BE())", function() {
+    assert.ok(Int64BE.isInt64BE(Int64BE()));
+    assert.ok(!Int64BE.isInt64BE(Uint64BE()));
+  });
 });
 
 describe("Uint64BE(array)", function() {
   forEach.call([
     [0x0000000000000000, 0, 0, 0, 0, 0, 0, 0, 0], // 0
     [0x0000000000000001, 0, 0, 0, 0, 0, 0, 0, 1], // 1
+    [0x00000000FFFFFFFF, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF],
     [0x4000000000000000, 0x40, 0, 0, 0, 0, 0, 0, 0],
-    [0x8000000000000000, 0x80, 0, 0, 0, 0, 0, 0, 0]
+    [0x7FFFFFFF00000000, 0x7F, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0],
+    [0x8000000000000000, 0x80, 0, 0, 0, 0, 0, 0, 0],
+    [0x8000000100000000, 0x80, 0, 0, 1, 0, 0, 0, 0],
+    [0xFFFFFFFF00000000, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0]
   ], function(exp) {
     var val = exp.shift();
     it(toHex(exp), function() {
@@ -273,63 +364,7 @@ describe("Int64BE(1)", function() {
   });
 });
 
-Object.keys(CLASS).forEach(function(int64Name) {
-  var Int64Class = CLASS[int64Name];
-  describe(int64Name, function() {
-
-    it(int64Name + "(string,raddix)", function() {
-      assert.equal(Int64Class("1234567890123456").toString(), "1234567890123456");
-      assert.equal(Int64Class("1234567890123456", 10).toString(10), "1234567890123456");
-      assert.equal(Int64Class("1234567890abcdef", 16).toString(16), "1234567890abcdef");
-    });
-
-    Object.keys(STORAGES).forEach(function(storageName) {
-      var StorageClass = STORAGES[storageName];
-      var itSkip = StorageClass ? it : it.skip;
-
-      itSkip(int64Name + "(" + storageName + ",offset)", function() {
-        var buffer = new StorageClass(24);
-        var raw = buffer;
-        for (var i = 0; i < 24; i++) {
-          raw[i] = i;
-        }
-        var val = new Int64Class(buffer, 8);
-        assert.equal(Math.round(val.toNumber() / 0x1000000), 0x08090A0B0C); // check only higher 48bits
-        assert.equal(val.toString(16), "8090a0b0c0d0e0f");
-        var out = val.toArray();
-        assert.equal(toHex(out), "08090a0b0c0d0e0f");
-        assert.ok(out instanceof Array);
-      });
-
-      itSkip(int64Name + "(" + storageName + ",offset,value)", function() {
-        var buffer = new StorageClass(24);
-        var val = new Int64Class(buffer, 8, 1234567890);
-        assert.equal(val.toNumber(), 1234567890);
-        assert.equal(val.toString(), "1234567890");
-        assert.equal(val.toJSON(), "1234567890");
-        assert.equal(buffer[8], 0);
-        assert.equal(buffer[15], 1234567890 & 255);
-      });
-
-      itSkip(int64Name + "(" + storageName + ",offset,string,raddix)", function() {
-        var buffer = new StorageClass(24);
-        var val = new Int64Class(buffer, 8, "1234567890", 16);
-        assert.equal(val.toNumber(), 0x1234567890);
-        assert.equal(val.toString(16), "1234567890");
-        assert.equal(val.toJSON(), (0x1234567890).toString());
-        assert.equal(buffer[8], 0);
-        assert.equal(buffer[15], 0x1234567890 & 255);
-      });
-    });
-  });
-});
-
-describe("Uint64BE", function() {
-  it("Uint64BE.isUint64BE(Uint64BE())", function() {
-    assert.ok(Uint64BE.isUint64BE(Uint64BE()));
-    assert.ok(!Uint64BE.isUint64BE(Int64BE()));
-  });
-
+describe("Uint64BE(string)", function() {
   // rount-trip by string
   it("Uint64BE(''+Uint64BE())", function() {
     SAMPLES.forEach(function(array) {
@@ -340,12 +375,7 @@ describe("Uint64BE", function() {
   });
 });
 
-describe("Int64BE", function() {
-  it("Int64BE.isInt64BE(Int64BE())", function() {
-    assert.ok(Int64BE.isInt64BE(Int64BE()));
-    assert.ok(!Int64BE.isInt64BE(Uint64BE()));
-  });
-
+describe("Int64BE(string)", function() {
   // rount-trip by string
   it("Int64BE(''+Int64BE())", function() {
     SAMPLES.forEach(function(array) {
