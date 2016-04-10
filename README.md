@@ -127,6 +127,24 @@ var big = Uint64BE([1,2,3,4,5,6,7,8]);
 console.log(big.toArray()); // [ 1, 2, 3, 4, 5, 6, 7, 8 ]
 ```
 
+### Storage Extension
+
+This uses an `Array` instance as the internal buffer per default.
+You could extend the class to use `Uint8Array` or `Buffer` as well.
+
+```js
+var Int64_Buffer = Int64BE.extend({storage: Buffer});
+var Uint64_Buffer = Uint64BE.extend({storage: Buffer});
+var Int64_Uint8Buffer = Int64BE.extend({storage: Uint8Buffer});
+var Uint64_Uint8Buffer = Uint64BE.extend({storage: Uint8Buffer});
+
+var a = new Int64_Buffer(-1);
+console.log(a - 0);
+
+var b = new Uint64_Buffer(Math.pow(2, 63));
+console.log(b - 0);
+```
+
 ### Browsers Build
 
 [int64-array.min.js](https://rawgithub.com/kawanet/int64-array/master/dist/int64-array.min.js) is [tested](https://saucelabs.com/u/int64-array) on modern Web browsers as well as legends of IE8.

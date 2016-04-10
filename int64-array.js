@@ -9,15 +9,8 @@ var Uint64BE, Int64BE;
 !function(exports) {
   // constructors
 
-  var U = exports.Uint64BE = Uint64BE = function(buffer, offset, value, raddix) {
-    if (!(this instanceof Uint64BE)) return new Uint64BE(buffer, offset, value, raddix);
-    return init(this, buffer, offset, value, raddix);
-  };
-
-  var I = exports.Int64BE = Int64BE = function(buffer, offset, value, raddix) {
-    if (!(this instanceof Int64BE)) return new Int64BE(buffer, offset, value, raddix);
-    return init(this, buffer, offset, value, raddix);
-  };
+  var U = exports.Uint64BE = Uint64BE = extend();
+  var I = exports.Int64BE = Int64BE = extend();
 
   // constants
 
@@ -31,19 +24,26 @@ var Uint64BE, Int64BE;
   function init(that, buffer, offset, value, raddix) {
     // Int64BE() style
     if (!buffer) {
-      that.buffer = newArray(ZERO, 0);
-      return;
+      if (!that.storage && !offset) {
+        // shortcut to initialize with zero
+        that.buffer = newArray(ZERO, 0);
+        return;
+      } else {
+        // initialize as Int64BE(0) when another storage used
+        buffer = 0;
+      }
     }
 
     var valueIsStorage;
-    if (isStorage(buffer, offset |= 0)) {
-      valueIsStorage = isStorage(value, raddix |= 0);
+    if (isValidBuffer(buffer, offset |= 0)) {
+      valueIsStorage = isValidBuffer(value, raddix |= 0);
     } else {
       // Int64BE(value, raddix) style
+      var storage = that.storage || Array;
       raddix = offset;
       value = buffer;
       offset = 0;
-      buffer = new Array(8);
+      buffer = new storage(8);
     }
 
     that.buffer = buffer;
@@ -70,6 +70,9 @@ var Uint64BE, Int64BE;
 
   var UPROTO = U.prototype;
   var IPROTO = I.prototype;
+
+  // default internal storage class: Array
+  UPROTO.storage = IPROTO.storage = void 0;
 
   UPROTO.buffer = IPROTO.buffer = void 0;
 
@@ -126,9 +129,38 @@ var Uint64BE, Int64BE;
     return this.toString(10);
   };
 
+  // factory methods
+
+  I.extend = extend.bind(IPROTO);
+  U.extend = extend.bind(UPROTO);
+
+  function extend(opts) {
+    if (!this && !opts) return Int64BE;
+
+    // inherit
+    _Int64BE.prototype = this;
+
+    // extend
+    var proto = Int64BE.prototype = new _Int64BE();
+    for (var key in opts) {
+      proto[key] = opts[key];
+    }
+    return Int64BE;
+
+    // extended class
+    function Int64BE(buffer, offset, value, raddix) {
+      if (!(this instanceof Int64BE)) return new Int64BE(buffer, offset, value, raddix);
+      return init(this, buffer, offset, value, raddix);
+    }
+
+    // dummy class
+    function _Int64BE() {
+    }
+  }
+
   // private methods
 
-  function isStorage(buffer, offset) {
+  function isValidBuffer(buffer, offset) {
     var len = buffer && buffer.length;
     return len && (offset + 8 <= len) && ("string" !== typeof buffer[offset]);
   }

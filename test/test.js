@@ -21,6 +21,7 @@ var SAMPLES = [ZERO, POS1, NEG1, POSB, NEGB, POS7, NEG7, NEG8];
 var INPUT0 = [0, 0.5, "0", "-0", NaN, Infinity, null];
 var INPUT1 = [1, 1.5, "1", true];
 var FLOAT_MAX = Math.pow(2, 53);
+var CLASS = {Int64BE: Int64BE, Uint64BE: Uint64BE};
 
 describe("Uint64BE", function() {
   it("Uint64BE()", function() {
@@ -438,6 +439,59 @@ describe("Int64BE(string)", function() {
       var e = "" + Int64BE(d);
       var f = (e === "0") ? e : (e[0] === "-") ? e.substr(1) : "-" + e;
       assert.equal(f, c);
+    });
+  });
+});
+
+var UINT8ARRAY = ("undefined" !== typeof Uint8Array) && Uint8Array;
+var describeUint8Array = UINT8ARRAY ? describe : describe.skip;
+
+Object.keys(CLASS).forEach(function(int64Name) {
+  describeUint8Array(int64Name + ".extend()", function() {
+    var Class = CLASS[int64Name];
+    var XInt64BE;
+
+    it(int64Name + ".extend({storage: Uint8Array})", function() {
+      XInt64BE = Class.extend({storage: UINT8ARRAY});
+      assert.ok(XInt64BE instanceof Function);
+      assert.ok(XInt64BE().buffer instanceof UINT8ARRAY);
+      assert.ok(Class().buffer instanceof Array);
+      assert.ok(Class.extend()().buffer instanceof Array);
+    });
+
+    it("XInt64BE()", function() {
+      var c = new XInt64BE();
+      assert.equal(c - 0, 0);
+      assert.ok(c.buffer instanceof UINT8ARRAY);
+      assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(number)", function() {
+      var c = XInt64BE(1234567890);
+      assert.equal(c - 0, 1234567890);
+      assert.ok(c.buffer instanceof UINT8ARRAY);
+      assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(uint8array,offset)", function() {
+      var c = XInt64BE(new UINT8ARRAY([].concat(NEGB, POSB)), 8);
+      assert.equal(c.toString(16), toHex(POSB));
+      assert.ok(c.buffer instanceof UINT8ARRAY);
+      assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(uint8array,offset,number)", function() {
+      var c = XInt64BE(new UINT8ARRAY(16), 4, 1234567890);
+      assert.equal(c - 0, 1234567890);
+      assert.ok(c.buffer instanceof UINT8ARRAY);
+      assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(uint8array,offset,string,raddix)", function() {
+      var c = XInt64BE(new UINT8ARRAY(16), 4, "123456789abcdef0", 16);
+      assert.equal(c.toString(16), "123456789abcdef0");
+      assert.ok(c.buffer instanceof UINT8ARRAY);
+      assert.ok(c.toArray() instanceof Array);
     });
   });
 });
