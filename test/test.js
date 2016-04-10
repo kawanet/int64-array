@@ -277,10 +277,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
   var Int64Class = CLASS[int64Name];
   describe(int64Name, function() {
 
-    it(int64Name + "(high,low)", function() {
-      assert.equal(Int64Class(0x12345678, 0x90abcdef).toString(16), "1234567890abcdef");
-    });
-
     it(int64Name + "(string,raddix)", function() {
       assert.equal(Int64Class("1234567890123456").toString(), "1234567890123456");
       assert.equal(Int64Class("1234567890123456", 10).toString(10), "1234567890123456");
@@ -313,14 +309,6 @@ Object.keys(CLASS).forEach(function(int64Name) {
         assert.equal(val.toJSON(), "1234567890");
         assert.equal(buffer[8], 0);
         assert.equal(buffer[15], 1234567890 & 255);
-      });
-
-      itSkip(int64Name + "(" + storageName + ",offset,high,low)", function() {
-        var buffer = new StorageClass(24);
-        var val = new Int64Class(buffer, 8, 0x12345678, 0x90abcdef);
-        assert.equal(val.toString(16), "1234567890abcdef");
-        assert.equal(buffer[8], 0x12);
-        assert.equal(buffer[15], 0xef);
       });
 
       itSkip(int64Name + "(" + storageName + ",offset,string,raddix)", function() {
