@@ -12,6 +12,11 @@ var Uint64BE, Int64BE;
   var U = exports.Uint64BE = Uint64BE = extend();
   var I = exports.Int64BE = Int64BE = extend();
 
+  // member methods
+
+  var UPROTO = U.prototype;
+  var IPROTO = I.prototype;
+
   // constants
 
   var ZERO = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -20,6 +25,10 @@ var Uint64BE, Int64BE;
   var BIT24 = 16777216;
 
   // initializer
+
+  UPROTO.init = IPROTO.init = function(buffer, offset, value, raddix) {
+    return init(this, buffer, offset, value, raddix);
+  };
 
   function init(that, buffer, offset, value, raddix) {
     // Int64BE() style
@@ -35,8 +44,8 @@ var Uint64BE, Int64BE;
     }
 
     var valueIsStorage;
-    if (isValidBuffer(buffer, offset |= 0)) {
-      valueIsStorage = isValidBuffer(value, raddix |= 0);
+    if (isValidBuffer(buffer, offset)) {
+      valueIsStorage = isValidBuffer(value, raddix);
     } else {
       // Int64BE(value, raddix) style
       var storage = that.storage || Array;
@@ -47,7 +56,7 @@ var Uint64BE, Int64BE;
     }
 
     that.buffer = buffer;
-    that.offset = offset;
+    that.offset = offset |= 0;
 
     // Int64BE(buffer, offset) style
     if ("undefined" === typeof value) return;
@@ -57,6 +66,9 @@ var Uint64BE, Int64BE;
       fromArray(buffer, offset, value, raddix);
     } else if ("string" === typeof value) {
       fromString(buffer, offset, value, raddix || 10);
+    } else if ("number" === typeof raddix) {
+      writeUInt32BE(buffer, offset, value); // high
+      writeUInt32BE(buffer, offset + 4, raddix); // low
     } else if (value > 0) {
       fromPositive(buffer, offset, value); // positive
     } else if (value < 0) {
@@ -65,11 +77,6 @@ var Uint64BE, Int64BE;
       fromArray(buffer, offset, ZERO, 0); // zero, NaN and others
     }
   }
-
-  // member methods
-
-  var UPROTO = U.prototype;
-  var IPROTO = I.prototype;
 
   // default internal storage class: Array
   UPROTO.storage = IPROTO.storage = void 0;
@@ -150,7 +157,7 @@ var Uint64BE, Int64BE;
     // extended class
     function Int64BE(buffer, offset, value, raddix) {
       if (!(this instanceof Int64BE)) return new Int64BE(buffer, offset, value, raddix);
-      return init(this, buffer, offset, value, raddix);
+      return this.init(buffer, offset, value, raddix);
     }
 
     // dummy class
@@ -162,6 +169,7 @@ var Uint64BE, Int64BE;
 
   function isValidBuffer(buffer, offset) {
     var len = buffer && buffer.length;
+    offset |= 0;
     return len && (offset + 8 <= len) && ("string" !== typeof buffer[offset]);
   }
 

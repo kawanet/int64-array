@@ -32,6 +32,11 @@ describe("Uint64BE", function() {
     assert.equal(Uint64BE(123456789) - 0, 123456789);
   });
 
+  it("Uint64BE(high,low)", function() {
+    assert.equal(Uint64BE(0x12345678, 0x90abcdef).toString(16), "1234567890abcdef");
+    assert.equal(Uint64BE(0x90abcdef, 0x12345678).toString(16), "90abcdef12345678");
+  });
+
   it("Uint64BE(string,raddix)", function() {
     assert.equal(Uint64BE("1234567890123456").toString(), "1234567890123456");
     assert.equal(Uint64BE("1234567890123456", 10).toString(10), "1234567890123456");
@@ -133,6 +138,11 @@ describe("Int64BE", function() {
 
   it("Int64BE(number)", function() {
     assert.equal(Int64BE(-123456789) - 0, -123456789);
+  });
+
+  it("Int64BE(high,low)", function() {
+    assert.equal(Int64BE(0x12345678, 0x90abcdef).toString(16), "1234567890abcdef");
+    assert.equal(Int64BE(0xFFFFFFFF, 0xFFFFFFFF) - 0, -1);
   });
 
   it("Int64BE(string,raddix)", function() {
@@ -459,6 +469,23 @@ Object.keys(CLASS).forEach(function(int64Name) {
       assert.ok(Class.extend()().buffer instanceof Array);
     });
 
+    it(int64Name + ".extend({init: function(){...}})", function() {
+      var _init = Class.prototype.init;
+      var XInt64BE = Class.extend({init: init});
+      var cnt = 0;
+      assert.equal(XInt64BE(1) - 0, 1);
+      assert.equal(cnt, 1);
+      assert.equal(new XInt64BE(2) - 0, 2);
+      assert.equal(cnt, 2);
+      assert.equal(XInt64BE(new Array(8), 0, 3) - 0, 3);
+      assert.equal(cnt, 3);
+
+      function init() {
+        cnt++;
+        return _init.apply(this, arguments);
+      }
+    });
+
     it("XInt64BE()", function() {
       var c = new XInt64BE();
       assert.equal(c - 0, 0);
@@ -471,6 +498,10 @@ Object.keys(CLASS).forEach(function(int64Name) {
       assert.equal(c - 0, 1234567890);
       assert.ok(c.buffer instanceof UINT8ARRAY);
       assert.ok(c.toArray() instanceof Array);
+    });
+
+    it("XInt64BE(high,low)", function() {
+      assert.equal(XInt64BE(0x12345678, 0x90abcdef).toString(16), "1234567890abcdef");
     });
 
     it("XInt64BE(uint8array,offset)", function() {
