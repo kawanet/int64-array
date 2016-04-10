@@ -21,29 +21,40 @@ var Uint64BE, Int64BE;
 
   // constants
 
-  var UNDEFIND = "undefined";
   var ZERO = [0, 0, 0, 0, 0, 0, 0, 0];
   var isArray = Array.isArray || _isArray;
-  var _toString = Object.prototype.toString;
   var BIT32 = 4294967296;
   var BIT24 = 16777216;
 
   // initializer
 
   function init(that, buffer, offset, value, raddix) {
-    if (isStorage(buffer, offset)) {
-      that.buffer = buffer;
-      that.offset = offset = offset | 0;
-      if (UNDEFIND === typeof value) return;
-      setValue(buffer, offset, value, raddix);
-    } else {
-      setValue((that.buffer = new Array(8)), 0, buffer, offset);
+    // Int64BE() style
+    if (!buffer) {
+      that.buffer = newArray(ZERO, 0);
+      return;
     }
-  }
 
-  function setValue(buffer, offset, value, raddix) {
-    if (isStorage(value, offset)) {
-      fromArray(buffer, offset, value, raddix | 0);
+    var valueIsStorage;
+    if (isStorage(buffer, offset |= 0)) {
+      valueIsStorage = isStorage(value, raddix |= 0);
+    } else {
+      // Int64BE(value, raddix) style
+      raddix = offset;
+      value = buffer;
+      offset = 0;
+      buffer = new Array(8);
+    }
+
+    that.buffer = buffer;
+    that.offset = offset;
+
+    // Int64BE(buffer, offset) style
+    if ("undefined" === typeof value) return;
+
+    // Int64BE(buffer, offset, value, raddix) style
+    if (valueIsStorage) {
+      fromArray(buffer, offset, value, raddix);
     } else if ("string" === typeof value) {
       fromString(buffer, offset, value, raddix || 10);
     } else if (value > 0) {
@@ -100,9 +111,11 @@ var Uint64BE, Int64BE;
   IPROTO.toString = function(radix) {
     var buffer = this.buffer;
     var offset = this.offset;
-    var sign = (buffer[offset] & 0x80) ? "-" : "";
+    var sign = buffer[offset] & 0x80;
     if (sign) neg(buffer = newArray(buffer, offset), 0);
-    return sign + toString(buffer, offset, radix);
+    var str = toString(buffer, offset, radix);
+    if (sign) str = "-" + str;
+    return str;
   };
 
   UPROTO.toString = function(radix) {
@@ -213,7 +226,7 @@ var Uint64BE, Int64BE;
 
   // https://github.com/retrofox/is-array
   function _isArray(val) {
-    return !!val && '[object Array]' == _toString.call(val);
+    return !!val && "[object Array]" == Object.prototype.toString.call(val);
   }
 
 }(this || {});
