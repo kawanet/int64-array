@@ -18,8 +18,8 @@ var POS7 = [0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]; // INT64_MAX
 var NEG7 = [0x80, 0, 0, 0, 0, 0, 0, 1]; // -INT64_MAX
 var NEG8 = [0x80, 0, 0, 0, 0, 0, 0, 0]; // INT64_MIN
 var SAMPLES = [ZERO, POS1, NEG1, POSB, NEGB, POS7, NEG7, NEG8];
-var INPUT0 = [0, 0.5, "0", "-0", NaN, Infinity, null];
-var INPUT1 = [1, 1.5, "1", true];
+var INPUT0 = [0, 0.5, "0", "-0", NaN, Infinity, null, "X"];
+var INPUT1 = [1, 1.5, "1", "1.5", true];
 var FLOAT_MAX = Math.pow(2, 53);
 var CLASS = {Int64BE: Int64BE, Uint64BE: Uint64BE};
 

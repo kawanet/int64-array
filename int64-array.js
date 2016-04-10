@@ -32,22 +32,14 @@ var Uint64BE, Int64BE;
 
   function init(that, buffer, offset, value, raddix) {
     // Int64BE() style
-    if (!buffer) {
-      if (!that.storage && !offset) {
-        // shortcut to initialize with zero
-        that.buffer = newArray(ZERO, 0);
-        return;
-      } else {
-        // initialize as Int64BE(0) when another storage used
-        buffer = 0;
-      }
+    if (!buffer && !offset && !value && !that.storage) {
+      // shortcut to initialize with zero
+      that.buffer = newArray(ZERO, 0);
+      return;
     }
 
-    var valueIsStorage;
-    if (isValidBuffer(buffer, offset)) {
-      valueIsStorage = isValidBuffer(value, raddix);
-    } else {
-      // Int64BE(value, raddix) style
+    // Int64BE(value, raddix) style
+    if (!isValidBuffer(buffer, offset)) {
       var storage = that.storage || Array;
       raddix = offset;
       value = buffer;
@@ -62,10 +54,10 @@ var Uint64BE, Int64BE;
     if ("undefined" === typeof value) return;
 
     // Int64BE(buffer, offset, value, raddix) style
-    if (valueIsStorage) {
-      fromArray(buffer, offset, value, raddix);
-    } else if ("string" === typeof value) {
+    if ("string" === typeof value) {
       fromString(buffer, offset, value, raddix || 10);
+    } else if (isValidBuffer(value, raddix)) {
+      fromArray(buffer, offset, value, raddix);
     } else if ("number" === typeof raddix) {
       writeUInt32BE(buffer, offset, value); // high
       writeUInt32BE(buffer, offset + 4, raddix); // low
@@ -138,14 +130,14 @@ var Uint64BE, Int64BE;
 
   // factory methods
 
-  I.extend = extend.bind(IPROTO);
-  U.extend = extend.bind(UPROTO);
+  I.extend = extend.bind(null, IPROTO);
+  U.extend = extend.bind(null, UPROTO);
 
-  function extend(opts) {
-    if (!this && !opts) return Int64BE;
+  function extend(parent, opts) {
+    if (!parent && !opts) return Int64BE;
 
     // inherit
-    _Int64BE.prototype = this;
+    _Int64BE.prototype = parent;
 
     // extend
     var proto = Int64BE.prototype = new _Int64BE();
